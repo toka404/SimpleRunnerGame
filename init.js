@@ -25,7 +25,7 @@ let gameOptions = {
 
 window.onload = function () {
     let gameConfig = {
-        type: Phaser.CANVAS,
+        type: Phaser.AUTO,
         backgroundColor: 0x444444,
         scale: {
             mode: Phaser.Scale.FIT,
