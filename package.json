@@ -4,12 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "webpack --config webpack/webpack.config.prod.js ",
+    "start": "webpack-dev-server --open --config webpack/webpack.config.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "phaser": "^3.55.2"
+    "phaser": "^3.55.2",
+    "webpack": "^5.48.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "webpack-cli": "^4.7.2"
   }
 }

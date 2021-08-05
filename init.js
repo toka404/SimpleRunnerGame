@@ -14,13 +14,13 @@ let gameOptions = {
     playerRadius: 25,
 
     // player speed, in degrees per frame
-    playerSpeed: 0.6,
+    playerSpeed: 0.8,
 
     // world gravity
     worldGravity: 0.5,
 
     // jump force of the single and double jump
-    jumpForce: [10, 8]
+    jumpForce: [12, 0]
 }
 
 window.onload = function () {
@@ -51,7 +51,10 @@ window.onload = function () {
     var text;
     var textoPuntos;
     var timedEvent;
-    var radians;
+    var enemy;
+    var salto;
+    var inicio;
+    var fin;
 
 
     game = new Phaser.Game(gameConfig);
@@ -63,6 +66,7 @@ var puntos = 0;
 function preload() {
     //this.load.image("player", "player.png");
     this.load.image('obstaculo', 'assets/obstaculo.PNG');
+    this.enemy = 1.5568;
 
 }
 function create() {
@@ -103,8 +107,12 @@ function create() {
     this.input.on("pointerdown", function () {
 
         // if the player jumped less than 2 times...
-        if (this.player.jumps < 2) {
+        if (this.player.jumps < 1) {
 
+            this.inicio = radians;
+            console.log("inicio"+this.inicio);
+
+            this.salto = true;
             // one more jump
             this.player.jumps++;
 
@@ -115,14 +123,14 @@ function create() {
             this.scene.restart();
             puntos = 0;
             gameOver = false;
-            gameOptions.playerSpeed = 0.6;
+            gameOptions.playerSpeed = 0.8;
         }
     }, this);
 
     timedEvent = this.time.delayedCall(9000, onEvent, [], this);
 
     this.obstaculo = this.physics.add.sprite(game.config.width / 2, game.config.height / 2 + this.distanceFromCenter, "obstaculo");
-    this.obstaculo.setScale(1);
+    this.obstaculo.setScale(0.1);
 
     this.physics.add.overlap(this.player, this.obstaculo, function () {
         gameOver = true;
@@ -146,7 +154,7 @@ function update(time, delta) {
             this.player.jumpForce -= gameOptions.worldGravity;
 
             // if jump offset is zero or less than zero, that is the player is on the ground...
-            if (this.player.jumpOffset < 0) {
+            if (this.player.jumpOffset < 1) {
 
                 // set jump offset to zero
                 this.player.jumpOffset = 0;
@@ -156,7 +164,15 @@ function update(time, delta) {
 
                 // player has no jump force
                 this.player.jumpForce = 0;
+
             }
+        }
+
+        if(this.player.jumpOffset == 0 && this.salto == true)
+        {
+            this.fin = radians;
+            console.log("fin"+this.fin);
+            this.salto = false;
         }
 
         // update current angle adding player speed
@@ -174,6 +190,16 @@ function update(time, delta) {
 
         // rotate player using trigonometry
         this.player.angle = -this.player.currentAngle * 10;
+
+        if (this.enemy > this.inicio && this.enemy < this.fin) {
+            puntos += 5;
+            this.inicio = null;
+            this.fin = null;
+            
+            // console.log("enemy = " + this.enemy.toFixed(4));
+        }
+            //console.log("Player = " + radians.toFixed(4));
+            console.log("enemy" + this.enemy);
     }
 
     if (gameOver) {
@@ -181,41 +207,43 @@ function update(time, delta) {
         this.gameOverText = this.add.text(168, 490, "Click para volver a jugar", { fontSize: "32px", fill: "#000" });
     }
 
-    }
+
+
+}
 
 
 function onEvent() {
 
     if (!gameOver) {
+
         //this.positionX = Phaser.Math.FloatBetween(-3.14, 3.14);
         //this.positionX = (radians -1) * -1;
-        this.positionX = radians - Math.floor(Math.random()*(4-3))+3;
-       
+        this.positionX = radians - Math.floor(Math.random() * (4 - 3)) + 3;
+        this.enemy = radians * -1;
+
+        //console.log("Obstaculo = " + this.enemy.toFixed(2));
+
         let aux1 = game.config.height / 2 + (gameOptions.bigCircleRadius - gameOptions.playerRadius - gameOptions.bigCircleThickness / 2) * Math.cos(this.positionX);
         let aux2 = game.config.height / 2 + (gameOptions.bigCircleRadius - gameOptions.playerRadius - gameOptions.bigCircleThickness / 2) * Math.sin(this.positionX);
         this.obstaculo.setPosition(aux1, aux2);
 
-        if (this.obstaculo.scale < 1.8) {
-            this.obstaculo.setScale(this.obstaculo.scale + 0.1);
+        if (this.obstaculo.scale < 0.18) {
+            this.obstaculo.setScale(this.obstaculo.scale + 0.01);
         }
 
-        if(gameOptions.playerSpeed < 2.5)
-        {
-            if(Math.sign(gameOptions.playerSpeed)>0)
-            {
+        if (gameOptions.playerSpeed < 2.5) {
+            if (Math.sign(gameOptions.playerSpeed) > 0) {
+                gameOptions.playerSpeed += 0.3
+            }
+            else {
                 gameOptions.playerSpeed += 0.1
             }
-            else
-            {
-                gameOptions.playerSpeed += 0.05
-            }
         }
 
-        puntos += 10;
-        
-        if(puntos%4==0)
-        {
-            gameOptions.playerSpeed *= -1; 
+        //puntos += 10;
+
+        if (puntos % 4 == 0) {
+            gameOptions.playerSpeed *= -1;
         }
 
         timedEvent = this.time.delayedCall(6000, onEvent, [], this);
